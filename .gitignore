@@ -1,0 +1,7 @@
+dist
+bin
+__pycache__
+*.so
+include
+share
+lib
