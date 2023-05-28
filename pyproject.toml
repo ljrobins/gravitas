@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gravitas"
-version = "0.0.16"
+version = "0.0.19"
 description = "High-fidelity gravity fields for satellite propagation"
 authors = ["Liam Robinson <robin502@purdue.edu>"]
 readme = "README.md"

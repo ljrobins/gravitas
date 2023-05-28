@@ -6,7 +6,6 @@
 #include <string.h>
 #include "libgrav.h"
 #include <pthread.h>
-#include <limits.h>
 
 
 #define NUM_THREADS 10
@@ -28,20 +27,20 @@ Vector3 rfs[MAX_RF];
 Vector3 gs[MAX_RF];
 
 
-uint64_t GetTimeStamp() {
-    struct timeval tv;
-    gettimeofday(&tv,NULL);
-    return tv.tv_sec*(uint64_t)1000000+tv.tv_usec;
-}
+// uint64_t GetTimeStamp() {
+//     struct timeval tv;
+//     gettimeofday(&tv,NULL);
+//     return tv.tv_sec*(uint64_t)1000000+tv.tv_usec;
+// }
 
-uint64_t dt;
-void tic() {
-    dt = GetTimeStamp();
-}
+// uint64_t dt;
+// void tic() {
+//     dt = GetTimeStamp();
+// }
 
-void toc() {
-    printf("Elapsed time: %.2e\n", (float) ((GetTimeStamp()-dt)) / 1000000);
-}
+// void toc() {
+//     printf("Elapsed time: %.2e\n", (float) ((GetTimeStamp()-dt)) / 1000000);
+// }
 
 double Vector3Norm(Vector3 v) {
     return sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
