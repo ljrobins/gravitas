@@ -4,10 +4,29 @@
 #include <time.h>
 #include <sys/time.h>
 #include <string.h>
+#include "libgrav.h"
+#include <pthread.h>
+#include <limits.h>
 
 
-#define US_IN_S 1000000
-#define EGM96MAXN 360 // Maximum degree and order for the EGM96 gravity model
+#define NUM_THREADS 10
+#define MAX_RF 100000
+
+// Vector3 type
+typedef struct Vector3 {
+    double x;
+    double y;
+    double z;
+} Vector3;
+
+
+double req;
+double mu;
+int model_index;
+int body_index;
+Vector3 rfs[MAX_RF];
+Vector3 gs[MAX_RF];
+
 
 uint64_t GetTimeStamp() {
     struct timeval tv;
@@ -21,26 +40,19 @@ void tic() {
 }
 
 void toc() {
-    printf("Elapsed time: %.2e\n", (float) ((GetTimeStamp()-dt)) / US_IN_S);
+    printf("Elapsed time: %.2e\n", (float) ((GetTimeStamp()-dt)) / 1000000);
 }
-
-// Vector3 type
-typedef struct Vector3 {
-    double x;
-    double y;
-    double z;
-} Vector3;
 
 double Vector3Norm(Vector3 v) {
     return sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
 }
 
-Vector3 Vector3Divide(Vector3 v, double s) {
-    return (Vector3) {v.x / s, v.y/s, v.z/s};
+Vector3 Vector3Scale(Vector3 v, double s) {
+    return (Vector3) {v.x*s, v.y*s, v.z*s};
 }
 
 Vector3 Vector3Hat(Vector3 v) {
-    return Vector3Divide(v, Vector3Norm(v));
+    return Vector3Scale(v, 1.0/Vector3Norm(v));
 }
 
 enum BODY {
@@ -87,59 +99,72 @@ void set_body_params(int body_index, double *mu, double *req) {
 }
 
 
-void read_cnm_snm(double cnm[EGM96MAXN+2][EGM96MAXN+2], 
-                  double snm[EGM96MAXN+2][EGM96MAXN+2],
-                  int nmax, int model_index) {
-    FILE *f;
-    char* fpath;
+int nm2i(int n, int m) {
+    return n * (n+1) / 2 + m;
+}
+
+void read_cnm_snm(int nmax, int model_index, double cnm[], double snm[]) {
+    int num = ncoef_EGM96;
+    const int* n = (int*) malloc(ncoef_EGM96 * sizeof(int));
+    const int* m = (int*) malloc(ncoef_EGM96 * sizeof(int));
+    const double* c = (double*) malloc(ncoef_EGM96 * sizeof(double));
+    const double* s = (double*) malloc(ncoef_EGM96 * sizeof(double));
+
     if(model_index == EGM96) {
-        fpath = strcat(getenv("GRAVITAS_ROOT_CP"), "/models/EGM96");
+        // Coefficients from: https://raw.githubusercontent.com/lukasbystricky/SpaceSimulator/master/Environment/Geopoential/coefficients/egm96_to360.ascii
+        n = n_EGM96; 
+        m = m_EGM96; 
+        c = c_EGM96; 
+        s = s_EGM96; 
+        num = ncoef_EGM96;
     }
     if(model_index == GRGM360) {
-        fpath = strcat(getenv("GRAVITAS_ROOT_CP"), "/models/GRGM360");
+        n = n_GRGM360; 
+        m = m_GRGM360; 
+        c = c_GRGM360; 
+        s = s_GRGM360; 
+        num = ncoef_GRGM360;
         // Coefficients from: https://pds-geosciences.wustl.edu/grail/grail-l-lgrs-5-rdr-v1/grail_1001/shadr/gggrx_1200a_sha.tab
     }
     if(model_index == MRO120F) {
-        fpath = strcat(getenv("GRAVITAS_ROOT_CP"), "/models/MRO120F");
+        n = n_MRO120F; 
+        m = m_MRO120F; 
+        c = c_MRO120F; 
+        s = s_MRO120F; 
+        num = ncoef_MRO120F;
         // Coefficients from: https://pds-geosciences.wustl.edu/mro/mro-m-rss-5-sdp-v1/mrors_1xxx/data/shadr/jgmro_120f_sha.tab
     }
-    f = fopen(fpath, "r");
-    int n = -1; 
-    int m; 
-    double c;
-    double s; 
-    double temp;
-    while(n <= nmax) {
-        fscanf(f, "%d ", &n);
-        fscanf(f, "%d ", &m);
-        fscanf(f, "%lf ", &c);
-        fscanf(f, "%lf ", &s);
-        fscanf(f, "%lf ", &temp);
-        fscanf(f, "%lf ", &temp);
-        if(n > nmax) {
+    
+    for(int i = 0; i < num; i++) {
+        int ind = nm2i(*(n+i), *(m+i));
+        cnm[ind] = *(c+i);
+        snm[ind] = *(s+i);
+        // printf("n=%d, m=%d, c=%.2e, s=%.2e, cnm=%.2e, snm=%.2e\n", *(n+i), *(m+i), *(c+i), *(s+i), cnm[ind], snm[ind]);
+        if(*(m+i) == nmax) {
             break;
         }
-        cnm[n][m] = c;
-        snm[n][m] = s;
     }
-    fclose(f);
-    cnm[0][0] = 1.0; // Central gravity
+
+    snm[0] = 0.0;
+    cnm[0] = 1.0;
     return;
 }
 
-Vector3 pinesnorm(Vector3 rf, double cnm[EGM96MAXN+2][EGM96MAXN+2],
-               double snm[EGM96MAXN+2][EGM96MAXN+2], int nmax, double mu, double req) {
+Vector3 pinesnorm(Vector3 rf, double cnm[],
+               double snm[], int nmax, double mu, double req) {
     // Based on pinesnorm() from: https://core.ac.uk/download/pdf/76424485.pdf
     double rmag = Vector3Norm(rf);
     Vector3 stu = Vector3Hat(rf);
-    double anm[nmax+3][nmax+3];
-    anm[0][0] = sqrt(2.0);
+    int anm_sz = nm2i(nmax+3, nmax+3);
+    double anm[anm_sz];
+    anm[0] = sqrt(2.0);
+     
     for(int m = 0; m <= nmax+2; m++) {
         if(m != 0) { // DIAGONAL RECURSION
-            anm[m][m] = sqrt(1.0+1.0/(2.0*m))*anm[m-1][m-1];
+            anm[nm2i(m,m)] = sqrt(1.0+1.0/(2.0*m))*anm[nm2i(m-1,m-1)];
         }
         if(m != nmax+2) { // FIRST OFF-DIAGONAL RECURSION 
-            anm[m+1][m] = sqrt(2*m+3)*stu.z*anm[m][m];
+            anm[nm2i(m+1,m)] = sqrt(2*m+3)*stu.z*anm[nm2i(m,m)];
         }
         if(m < nmax+1) {
             for(int n = m+2; n <= nmax+2; n++) {
@@ -149,13 +174,14 @@ Vector3 pinesnorm(Vector3 rf, double cnm[EGM96MAXN+2][EGM96MAXN+2],
                 double beta_num = (2*n+1)*(n-m-1)*(n+m-1);
                 double beta_den = (2*n-3)*(n+m)*(n-m);
                 double beta = sqrt(beta_num/beta_den);
-                anm[n][m] = alpha*stu.z*anm[n-1][m] - beta*anm[n-2][m];
+                anm[nm2i(n,m)] = alpha*stu.z*anm[nm2i(n-1,m)] - beta*anm[nm2i(n-2,m)];
             }
         }
     }
     for(int n = 0; n <= nmax+2; n++) {
-        anm[n][0] *= sqrt(0.50);
+        anm[nm2i(n,0)] *= sqrt(0.50);
     }
+     
     double rm[nmax+2];
     double im[nmax+2];
     rm[0] = 0.00; rm[1] = 1.00; 
@@ -171,41 +197,101 @@ Vector3 pinesnorm(Vector3 rf, double cnm[EGM96MAXN+2][EGM96MAXN+2],
         double g1t = 0.0; double g2t = 0.0; double g3t = 0.0; double g4t = 0.0;
         double sm = 0.5;
         for(int m = 0; m <= n; m++) {
-            if(n == m) anm[n][m+1] = 0.0;
-            double dnm = cnm[n][m]*rm[m+1] + snm[n][m]*im[m+1];
-            double enm = cnm[n][m]*rm[m] + snm[n][m]*im[m];
-            double fnm = snm[n][m]*rm[m] - cnm[n][m]*im[m];
+            double anmp1;
+            if(n == m) {
+                anmp1 = 0.0;
+            }
+            else {
+                anmp1 = anm[nm2i(n,m+1)];
+            }
+
+            double dnm = cnm[nm2i(n,m)]*rm[m+1] + snm[nm2i(n,m)]*im[m+1];
+            double enm = cnm[nm2i(n,m)]*rm[m] + snm[nm2i(n,m)]*im[m];
+            double fnm = snm[nm2i(n,m)]*rm[m] - cnm[nm2i(n,m)]*im[m];
             double alpha  = sqrt(sm*(n-m)*(n+m+1));
-            g1t += anm[n][m]*m*enm;
-            g2t += anm[n][m]*m*fnm;
-            g3t += alpha*anm[n][m+1]*dnm;
-            g4t += ((n+m+1)*anm[n][m]+alpha*stu.z*anm[n][m+1])*dnm;
+            g1t += anm[nm2i(n,m)]*m*enm;
+            g2t += anm[nm2i(n,m)]*m*fnm;
+            g3t += alpha*anmp1*dnm;
+            g4t += ((n+m+1)*anm[nm2i(n,m)]+alpha*stu.z*anmp1)*dnm;
+            // printf("ANM: %d %d %.2e %.2e\n", n, m, anm[nm2i(n,m)], anmp1);
+            // printf("DEF: %d %d %.2e %.2e %.2e\n", n, m, dnm, enm, fnm);
+            // printf("G1-4t: %d %d %.2e %.2e %.2e %.2e\n", n, m, g1t, g2t, g3t, g4t);
+            // printf("CS: %d %d %.2e %.2e\n", n, m, cnm[nm2i(n,m)], snm[nm2i(n,m)]);
             if(m == 0) sm = 1.0;
         }
         rho *= rhop;
-        g1 += rho*g1t; g2 += rho*g2t; g3 += rho*g3t; g4 += rho*g4t;
+        g1 += rho*g1t; 
+        g2 += rho*g2t; 
+        g3 += rho*g3t; 
+        g4 += rho*g4t;
+        // printf("n=%d, g1 = %.2e, g2 = %.2e, g3 = %.2e, g4 = %.2e\n", 
+        // n, g1, g2, g3, g4);
     }
-    return (Vector3) {g1-g4*stu.x, g2-g4*stu.y, g3-g4*stu.z};
+    Vector3 rv = (Vector3) {g1-g4*stu.x, g2-g4*stu.y, g3-g4*stu.z};
+    return rv;
+}
+
+typedef struct thread_args{
+    int start_ind;
+    int end_ind;
+    int nmax;
+    double (*cnm)[];
+    double (*snm)[];
+}thread_args;
+
+void* thread_func(void* arg) {
+    struct thread_args *targs = (struct thread_args *)arg;
+    for(int i = targs->start_ind; i < targs->end_ind; i++) {
+        gs[i] = pinesnorm(rfs[i], *targs->cnm, *targs->snm, targs->nmax, mu, req);
+    }
+    return NULL;
 }
 
 double* egm96_gravity(double x[], double y[], double z[], int num_pts, int nmax, char* model_name) {
-    double cnm[EGM96MAXN+2][EGM96MAXN+2];
-    double snm[EGM96MAXN+2][EGM96MAXN+2];
-    double req;
-    double mu;
-    int model_index;
-    int body_index;
     set_indices(model_name, &model_index, &body_index);
     set_body_params(body_index, &mu, &req);
-    read_cnm_snm(cnm, snm, nmax, model_index);
+    int sz = nm2i(nmax+2, nmax+2);
+    double cnm[sz];
+    double snm[sz];
+    read_cnm_snm(nmax, model_index, cnm, snm);
 
+    for(int i = 0; i < num_pts; i++) {
+        rfs[i] = (Vector3) (Vector3){x[i], y[i], z[i]};
+    }
+
+    pthread_t thread[NUM_THREADS];
+    pthread_attr_t attr;
+    pthread_attr_init(&attr);
+    size_t stacksize;
+    pthread_attr_getstacksize(&attr, &stacksize);
+    pthread_attr_setstacksize(&attr, 2*stacksize);
+
+    thread_args targs[NUM_THREADS];
+
+    for(int i = 0; i < NUM_THREADS; i++) {
+        int start_ind = i * num_pts / NUM_THREADS;
+        int end_ind = (i+1) * num_pts / NUM_THREADS;
+        targs[i] = (thread_args) {start_ind, end_ind, nmax, &cnm, &snm};
+    }
+
+    for(int i = 0; i < NUM_THREADS; i++) {
+        pthread_create(&thread[i], &attr, &thread_func, &targs[i]);
+    }
+    for(int i = 0; i < NUM_THREADS; i++) {
+        if (pthread_join(thread[i], NULL) != 0) {
+            printf("ERROR : pthread join failed.\n");
+            return (0);
+        }
+    }
+    // printf("Running one with one thread!\n");
+    // thread_func(&(thread_args) {0, num_pts, nmax, &cnm, &snm});
+    
+    
     double* res = (double*) malloc(3 * num_pts * sizeof(double));
     for(int i = 0; i < num_pts; i++) {
-        Vector3 rf = (Vector3){x[i], y[i], z[i]};
-        Vector3 gf = pinesnorm(rf, cnm, snm, nmax, mu, req);
-        res[3*i + 0] = gf.x;
-        res[3*i + 1] = gf.y;
-        res[3*i + 2] = gf.z;
+        res[3*i + 0] = gs[i].x;
+        res[3*i + 1] = gs[i].y;
+        res[3*i + 2] = gs[i].z;
     }
     return res;
 }
