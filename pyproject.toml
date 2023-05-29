@@ -5,7 +5,6 @@ description = "High-fidelity gravity fields for satellite propagation"
 authors = ["Liam Robinson <robin502@purdue.edu>"]
 readme = "README.md"
 packages = [{include = "gravitas"}]
-include = [{path = "gravitas", format = "sdist"}]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",

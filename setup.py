@@ -11,9 +11,7 @@ setup(
     version='0.1.0',
     packages=find_packages(),
     license='GPL-2',
-    requires=[
-        'numpy',
-    ],
+    install_requires=['numpy'],
     ext_modules=[
         Extension(
             # the qualified name of the extension module to build
