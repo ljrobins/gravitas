@@ -12,7 +12,6 @@ classifiers = [
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Operating System :: MacOS",
 ]
-build = "build.py"
 
 
 [tool.poetry.dependencies]
@@ -22,3 +21,10 @@ numpy = "^1.19"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[build-system]
+requires = [
+    "setuptools>=42",
+    "wheel",
+    "numpy"
+]
