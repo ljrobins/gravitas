@@ -20,4 +20,6 @@ setup(
             include_dirs=_INCDIR
         ),
     ],
+    include_package_data=True,  # Include non-Python files in packages
+    zip_safe=False,  # Allow the package to be unzipped without modification
 )
