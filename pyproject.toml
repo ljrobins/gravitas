@@ -28,6 +28,3 @@ requires = [
     "poetry-core",
     "numpy"
 ]
-
-[tool.poetry.build]
-requires = ["numpy"]
