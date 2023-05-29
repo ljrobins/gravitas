@@ -7,9 +7,16 @@
 #include "libgrav.h"
 #include <pthread.h>
 
+#define PY_SSIZE_T_CLEAN
+#include "Python.h"
+
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#include <numpy/arrayobject.h>
+
 
 #define NUM_THREADS 10
 #define MAX_RF 100000
+
 
 // Vector3 type
 typedef struct Vector3 {
@@ -17,6 +24,29 @@ typedef struct Vector3 {
     double y;
     double z;
 } Vector3;
+
+void * failure(PyObject *type, const char *message) {
+    PyErr_SetString(type, message);
+    return NULL;
+}
+
+void * success(PyObject *var){
+    Py_INCREF(var);
+    return var;
+}
+
+double numpy_arr_el(PyArrayObject *a, int row, int col) {
+    double *el_ptr = PyArray_GETPTR2(a, row, col);
+    return *el_ptr;
+}
+
+void numpy_nx3_to_xyz(PyArrayObject *a, double x[], double y[], double z[]) {
+    for(int i = 0; i < PyArray_DIM(a, 0); i++) {
+            x[i] = numpy_arr_el(a, i, 0);
+            y[i] = numpy_arr_el(a, i, 1);
+            z[i] = numpy_arr_el(a, i, 2);
+    }
+}
 
 
 double req;
@@ -246,7 +276,31 @@ void* thread_func(void* arg) {
     return NULL;
 }
 
-double* egm96_gravity(double x[], double y[], double z[], int num_pts, int nmax, char* model_name) {
+// double* egm96_gravity(double x[], double y[], double z[], int npts, int nmax, char* model_name) {
+
+static PyObject *egm96_gravity(PyObject *self, PyObject *args) {
+    PyArrayObject *r_ecef;
+    int nmax;
+    char* model_name = NULL;
+    if (!PyArg_ParseTuple(args, "O!is", 
+                            &PyArray_Type, &r_ecef, 
+                            &nmax,
+                            &model_name))
+        return failure(PyExc_RuntimeError, "Failed to parse parameters.");
+    
+    if (PyArray_DESCR(r_ecef)->type_num != NPY_DOUBLE)
+        return failure(PyExc_TypeError, "Type np.float64 expected for input ECEF position array.");
+    if (PyArray_NDIM(r_ecef) != 2)
+        return failure(PyExc_TypeError, "ECEF position must be [n x 3].");
+
+    printf("nmax: %d\n", nmax);
+    int npts = PyArray_DIM(r_ecef, 0);
+    double x[npts];
+    double y[npts];
+    double z[npts];
+    PyObject* accel_vector = PyList_New(3 * npts);
+    numpy_nx3_to_xyz(r_ecef, x, y, z);
+
     set_indices(model_name, &model_index, &body_index);
     set_body_params(body_index, &mu, &req);
     int sz = nm2i(nmax+2, nmax+2);
@@ -254,7 +308,7 @@ double* egm96_gravity(double x[], double y[], double z[], int num_pts, int nmax,
     double snm[sz];
     read_cnm_snm(nmax, model_index, cnm, snm);
 
-    for(int i = 0; i < num_pts; i++) {
+    for(int i = 0; i < npts; i++) {
         rfs[i] = (Vector3) (Vector3){x[i], y[i], z[i]};
     }
 
@@ -268,8 +322,8 @@ double* egm96_gravity(double x[], double y[], double z[], int num_pts, int nmax,
     thread_args targs[NUM_THREADS];
 
     for(int i = 0; i < NUM_THREADS; i++) {
-        int start_ind = i * num_pts / NUM_THREADS;
-        int end_ind = (i+1) * num_pts / NUM_THREADS;
+        int start_ind = i * npts / NUM_THREADS;
+        int end_ind = (i+1) * npts / NUM_THREADS;
         targs[i] = (thread_args) {start_ind, end_ind, nmax, &cnm, &snm};
     }
 
@@ -283,14 +337,43 @@ double* egm96_gravity(double x[], double y[], double z[], int num_pts, int nmax,
         }
     }
     // printf("Running one with one thread!\n");
-    // thread_func(&(thread_args) {0, num_pts, nmax, &cnm, &snm});
+    // thread_func(&(thread_args) {0, npts, nmax, &cnm, &snm});
     
     
-    double* res = (double*) malloc(3 * num_pts * sizeof(double));
-    for(int i = 0; i < num_pts; i++) {
+    double* res = (double*) malloc(3 * npts * sizeof(double));
+    for(int i = 0; i < npts; i++) {
         res[3*i + 0] = gs[i].x;
         res[3*i + 1] = gs[i].y;
         res[3*i + 2] = gs[i].z;
+        
+        PyList_SetItem(accel_vector, 3*i+0, PyFloat_FromDouble(gs[i].x));
+        PyList_SetItem(accel_vector, 3*i+1, PyFloat_FromDouble(gs[i].y));
+        PyList_SetItem(accel_vector, 3*i+2, PyFloat_FromDouble(gs[i].z));
     }
-    return res;
+    return accel_vector;
+}
+
+static PyMethodDef acceleration_method[] = {
+    {"_grav", /* The name as a C string. */
+    egm96_gravity,   /* The C function to invoke. */
+    METH_VARARGS, 
+    "Computes the body-fixed acceleration vector at a body-fixed position",
+    NULL,
+    NULL,
+    0,
+    NULL
+    }
+};
+
+static struct PyModuleDef module = {
+    PyModuleDef_HEAD_INIT,
+    "_grav",
+    "Python interface to the gravitas C functions",
+    -1, // the size of the module’s global state
+    acceleration_method
+};
+
+PyMODINIT_FUNC PyInit__grav(void) {
+    import_array();
+    return PyModule_Create(&module);
 }
