@@ -2,8 +2,6 @@ import sys
 import os
 import inspect
 
-_MODELNAMES = ['EGM96', 'GRGM360', 'MRO120F']
-
 # COMPILER SETUP
 if sys.platform == "linux" or sys.platform == "linux2":
     try:

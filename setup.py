@@ -7,10 +7,19 @@ _INCDIR = ['gravitas', np.get_include()]
 # _LIB_DIR
 setup(
     name='gravitas',
-    version='0.1.0',
+    version='0.1.1',
     packages=find_packages(),
     license='GPL-2',
+    long_description="""High-fidelity gravity fields for satellite propagation""",
+    long_description_content_type='text/markdown',
+    author="Liam Robinson",
+    author_email="robin502@purdue.edu",
     install_requires=['numpy'],
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "Operating System :: MacOS",
+    ],
     ext_modules=[
         Extension(
             # the qualified name of the extension module to build
