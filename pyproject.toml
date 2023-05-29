@@ -18,11 +18,13 @@ classifiers = [
 python = ">=3.5,<3.12"
 numpy = "^1.19"
 
+[tool.cibuildwheel.environment]
+CIBW_VERBOSE = "1"
+
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[build-system]
 requires = [
     "setuptools>=42",
     "wheel",
