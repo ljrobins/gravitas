@@ -18,6 +18,7 @@ numpy = "^1.19"
 
 [tool.cibuildwheel.environment]
 CIBW_VERBOSE = "1"
+CIBW_BUILD = "bdist_wheel"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"

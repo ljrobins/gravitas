@@ -1,5 +1,2 @@
 [build-system]
 requires = ["numpy"]
-
-[env]
-CIBW_BUILD = "bdist_wheel"
