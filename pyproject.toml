@@ -18,8 +18,9 @@ numpy = "^1.19"
 
 [tool.cibuildwheel.environment]
 CIBW_VERBOSE = "1"
-# Build only for Python 3.11
-CIBW_BUILD = "cp311-*"
+
+[tool.cibuildwheel]
+build = "cp311-*"
 
 
 [build-system]
