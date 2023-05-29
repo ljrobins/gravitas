@@ -5,7 +5,6 @@ import numpy as np
 _SOURCES = [os.path.join('gravitas', x) for x in os.listdir('gravitas') if '.c' == x[-2:]]
 _INCDIR = ['gravitas', np.get_include()]
 # _LIB_DIR
-print(_SOURCES)
 setup(
     name='gravitas',
     version='0.1.0',
