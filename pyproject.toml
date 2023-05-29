@@ -21,11 +21,12 @@ numpy = "^1.19"
 [tool.cibuildwheel.environment]
 CIBW_VERBOSE = "1"
 
-
 [build-system]
-requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 requires = [
     "setuptools>=42",
     "wheel",
+    "poetry-core",
+    "numpy"
 ]
+
