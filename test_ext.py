@@ -1,7 +1,7 @@
 import pyspaceaware as ps
 
 import os
-os.system('python build.py clean --all && python build.py build_ext --inplace')
+os.system('python setup.py clean --all && python setup.py build_ext --inplace')
 import gravitas._grav
 import numpy as np
 

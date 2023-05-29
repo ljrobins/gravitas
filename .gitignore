@@ -8,3 +8,5 @@ share
 lib
 script
 .DS_Store
+*.egg-info
+build

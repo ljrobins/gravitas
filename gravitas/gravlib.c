@@ -293,7 +293,6 @@ static PyObject *egm96_gravity(PyObject *self, PyObject *args) {
     if (PyArray_NDIM(r_ecef) != 2)
         return failure(PyExc_TypeError, "ECEF position must be [n x 3].");
 
-    printf("nmax: %d\n", nmax);
     int npts = PyArray_DIM(r_ecef, 0);
     double x[npts];
     double y[npts];
@@ -358,10 +357,6 @@ static PyMethodDef acceleration_method[] = {
     egm96_gravity,   /* The C function to invoke. */
     METH_VARARGS, 
     "Computes the body-fixed acceleration vector at a body-fixed position",
-    NULL,
-    NULL,
-    0,
-    NULL
     }
 };
 
