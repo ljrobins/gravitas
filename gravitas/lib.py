@@ -1,5 +1,4 @@
 import numpy as np
-import os
 from ._grav import _grav
 
 _SUPPORTED_MODELS = {'EGM96': 360, 'GRGM360': 360, "MRO120F": 120}

@@ -21,3 +21,4 @@ sys.path.insert(0, os.environ['GRAVITAS_ROOT'])
 
 
 from .lib import *
+from ._grav import _grav
