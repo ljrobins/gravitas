@@ -1,11 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <time.h>
-#include <sys/time.h>
 #include <string.h>
 #include "libgrav.h"
-#include <pthread.h>
+// #include <pthread.h>
 
 #define PY_SSIZE_T_CLEAN
 #include "Python.h"
@@ -14,7 +12,7 @@
 #include <numpy/arrayobject.h>
 
 
-#define NUM_THREADS 10
+#define NUM_THREADS 1
 #define MAX_RF 100000
 
 
@@ -55,22 +53,6 @@ int model_index;
 int body_index;
 Vector3 rfs[MAX_RF];
 Vector3 gs[MAX_RF];
-
-
-// uint64_t GetTimeStamp() {
-//     struct timeval tv;
-//     gettimeofday(&tv,NULL);
-//     return tv.tv_sec*(uint64_t)1000000+tv.tv_usec;
-// }
-
-// uint64_t dt;
-// void tic() {
-//     dt = GetTimeStamp();
-// }
-
-// void toc() {
-//     printf("Elapsed time: %.2e\n", (float) ((GetTimeStamp()-dt)) / 1000000);
-// }
 
 double Vector3Norm(Vector3 v) {
     return sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
@@ -311,33 +293,33 @@ static PyObject *egm96_gravity(PyObject *self, PyObject *args) {
         rfs[i] = (Vector3) (Vector3){x[i], y[i], z[i]};
     }
 
-    pthread_t thread[NUM_THREADS];
-    pthread_attr_t attr;
-    pthread_attr_init(&attr);
-    size_t stacksize;
-    pthread_attr_getstacksize(&attr, &stacksize);
-    pthread_attr_setstacksize(&attr, 2*stacksize);
+    // pthread_t thread[NUM_THREADS];
+    // pthread_attr_t attr;
+    // pthread_attr_init(&attr);
+    // size_t stacksize;
+    // pthread_attr_getstacksize(&attr, &stacksize);
+    // pthread_attr_setstacksize(&attr, 2*stacksize);
 
-    thread_args targs[NUM_THREADS];
+    // thread_args targs[NUM_THREADS];
 
-    for(int i = 0; i < NUM_THREADS; i++) {
-        int start_ind = i * npts / NUM_THREADS;
-        int end_ind = (i+1) * npts / NUM_THREADS;
-        targs[i] = (thread_args) {start_ind, end_ind, nmax, &cnm, &snm};
-    }
+    // for(int i = 0; i < NUM_THREADS; i++) {
+    //     int start_ind = i * npts / NUM_THREADS;
+    //     int end_ind = (i+1) * npts / NUM_THREADS;
+    //     targs[i] = (thread_args) {start_ind, end_ind, nmax, &cnm, &snm};
+    // }
 
-    for(int i = 0; i < NUM_THREADS; i++) {
-        pthread_create(&thread[i], &attr, &thread_func, &targs[i]);
-    }
-    for(int i = 0; i < NUM_THREADS; i++) {
-        if (pthread_join(thread[i], NULL) != 0) {
-            printf("ERROR : pthread join failed.\n");
-            return (0);
-        }
-    }
-    // printf("Running one with one thread!\n");
-    // thread_func(&(thread_args) {0, npts, nmax, &cnm, &snm});
-    
+    // for(int i = 0; i < NUM_THREADS; i++) {
+    //     pthread_create(&thread[i], &attr, &thread_func, &targs[i]);
+    // }
+    // for(int i = 0; i < NUM_THREADS; i++) {
+    //     if (pthread_join(thread[i], NULL) != 0) {
+    //         printf("ERROR : pthread join failed.\n");
+    //         return (0);
+    //     }
+    // }
+
+    // If we just want to run on one thread
+    thread_func(&(thread_args) {0, npts, nmax, &cnm, &snm});
     
     double* res = (double*) malloc(3 * npts * sizeof(double));
     for(int i = 0; i < npts; i++) {

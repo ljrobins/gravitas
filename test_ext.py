@@ -1,4 +1,4 @@
-import pyspaceaware as ps
+# import pyspaceaware as ps
 
 import os
 os.system('python setup.py clean --all && python setup.py build_ext --inplace')
@@ -7,8 +7,8 @@ import numpy as np
 
 r_ecef = np.tile(np.array([[7000, 0, 0.0]], dtype=np.float64), (1000,1))
 
-ps.tic()
+# ps.tic()
 g = gravitas.acceleration(r_ecef, 360, "EGM96")
-ps.toc()
+# ps.toc()
 
 print(g)
