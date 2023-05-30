@@ -9,9 +9,9 @@ _INCDIR = ['gravitas', np.get_include()]
 
 class CustomBuildExt(build_ext):
     def build_extensions(self):
-        for ext in self.extensions:
-            if self.compiler.compiler_type == 'msvc':
-                ext.extra_compile_args.append('/std:c99')
+        # for ext in self.extensions:
+        #     if self.compiler.compiler_type == 'msvc':
+        #         ext.extra_compile_args.append('/std:c90')
         super().build_extensions()
 
 # _LIB_DIR

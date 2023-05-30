@@ -167,7 +167,8 @@ Vector3 pinesnorm(Vector3 rf, double cnm[],
     double rmag = Vector3Norm(rf);
     Vector3 stu = Vector3Hat(rf);
     int anm_sz = nm2i(nmax+3, nmax+3);
-    double anm[anm_sz];
+    double *anm = malloc(anm_sz * sizeof(double)); //ansi-c
+    // double anm[anm_sz];
     anm[0] = sqrt(2.0);
      
     for(int m = 0; m <= nmax+2; m++) {
@@ -290,7 +291,7 @@ static PyObject *egm96_gravity(PyObject *self, PyObject *args) {
     read_cnm_snm(nmax, model_index, cnm, snm);
 
     for(int i = 0; i < npts; i++) {
-        rfs[i] = (Vector3) (Vector3){x[i], y[i], z[i]};
+        rfs[i] = (Vector3){x[i], y[i], z[i]};
     }
 
     // pthread_t thread[NUM_THREADS];
