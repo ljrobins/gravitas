@@ -32,7 +32,7 @@ test-skip = "*_universal2:arm64"
 environment = {RUNNER_OS="macOS"}
 
 [tool.cibuildwheel.windows]
-environment = {CFLAGS="std:c99", LDFLAGS=""}
+environment = {CFLAGS="", LDFLAGS=""}
 
 [build-system]
 requires = ["setuptools>=42", "wheel", "numpy"]
