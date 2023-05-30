@@ -7,7 +7,7 @@ _INCDIR = ['gravitas', np.get_include()]
 # _LIB_DIR
 setup(
     name='gravitas',
-    version='0.1.1',
+    version='0.1.2',
     packages=find_packages(),
     license='GPL-2',
     long_description="""High-fidelity gravity fields for satellite propagation""",
