@@ -15,9 +15,7 @@ setup(
     author="Liam Robinson",
     author_email="robin502@purdue.edu",
     install_requires=['numpy'],
-    data_files=[
-        ('gravitas', ['libgrav.h'])
-                ],
+    package_data={'gravitas': ['libgrav.h']},
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
@@ -32,6 +30,5 @@ setup(
             include_dirs=_INCDIR
         ),
     ],
-    include_package_data=True,  # Include non-Python files in packages
     zip_safe=False,  # Allow the package to be unzipped without modification
 )
