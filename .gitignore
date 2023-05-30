@@ -10,3 +10,4 @@ script
 .DS_Store
 *.egg-info
 build
+*.cfg

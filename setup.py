@@ -17,9 +17,12 @@ setup(
     install_requires=['numpy'],
     package_data={'gravitas': ['libgrav.h']},
     classifiers=[
-        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: MacOS",
+        "Operating System :: Microsoft :: Windows",
     ],
     ext_modules=[
         Extension(
