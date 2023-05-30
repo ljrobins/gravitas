@@ -158,6 +158,10 @@ void read_cnm_snm(int nmax, int model_index, double cnm[], double snm[]) {
 
     snm[0] = 0.0;
     cnm[0] = 1.0;
+    // free((void*) n); //ansi-c but also not working
+    // free((void*) m);
+    // free((void*) c);
+    // free((void*) s);
     return;
 }
 
@@ -194,8 +198,10 @@ Vector3 pinesnorm(Vector3 rf, double cnm[],
         anm[nm2i(n,0)] *= sqrt(0.50);
     }
      
-    double rm[nmax+2];
-    double im[nmax+2];
+    double* rm = (double*) malloc((nmax+2) * sizeof(double)); //ansi-c
+    double* im = (double*) malloc((nmax+2) * sizeof(double)); //ansi-c
+    // double rm[nmax+2];
+    // double im[nmax+2];
     rm[0] = 0.00; rm[1] = 1.00; 
     im[0] = 0.00; im[1] = 0.00; 
     for(int m = 2; m < nmax+2; m++) {
@@ -240,6 +246,9 @@ Vector3 pinesnorm(Vector3 rf, double cnm[],
         // n, g1, g2, g3, g4);
     }
     Vector3 rv = (Vector3) {g1-g4*stu.x, g2-g4*stu.y, g3-g4*stu.z};
+
+    free(anm);
+
     return rv;
 }
 
@@ -277,17 +286,22 @@ static PyObject *egm96_gravity(PyObject *self, PyObject *args) {
         return failure(PyExc_TypeError, "ECEF position must be [n x 3].");
 
     int npts = PyArray_DIM(r_ecef, 0);
-    double x[npts];
-    double y[npts];
-    double z[npts];
+    double* x = (double*) malloc(npts * sizeof(double)); //ansi-c
+    double* y = (double*) malloc(npts * sizeof(double));
+    double* z = (double*) malloc(npts * sizeof(double));
+    // double x[npts];
+    // double y[npts];
+    // double z[npts];
     PyObject* accel_vector = PyList_New(3 * npts);
     numpy_nx3_to_xyz(r_ecef, x, y, z);
 
     set_indices(model_name, &model_index, &body_index);
     set_body_params(body_index, &mu, &req);
     int sz = nm2i(nmax+2, nmax+2);
-    double cnm[sz];
-    double snm[sz];
+    double* cnm = (double*) malloc(sz * sizeof(double)); //ansi-c
+    double* snm = (double*) malloc(sz * sizeof(double));
+    // double cnm[sz];
+    // double snm[sz];
     read_cnm_snm(nmax, model_index, cnm, snm);
 
     for(int i = 0; i < npts; i++) {
@@ -320,7 +334,7 @@ static PyObject *egm96_gravity(PyObject *self, PyObject *args) {
     // }
 
     // If we just want to run on one thread
-    thread_func(&(thread_args) {0, npts, nmax, &cnm, &snm});
+    thread_func(&(thread_args) {0, npts, nmax, cnm, snm});
     
     double* res = (double*) malloc(3 * npts * sizeof(double));
     for(int i = 0; i < npts; i++) {
