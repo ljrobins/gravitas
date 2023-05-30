@@ -1,1 +1,1 @@
-include gravitas/*.h
+include gravitas/libgrav.h
