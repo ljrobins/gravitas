@@ -2,7 +2,7 @@ from setuptools import setup, find_packages, Extension
 import os
 import numpy as np
 
-_SOURCES = [os.path.join('gravitas', x) for x in os.listdir('gravitas') if '.c' == x[-2:] or '.h' == x[-2:]]
+_SOURCES = [os.path.join('gravitas', x) for x in os.listdir('gravitas') if '.c' == x[-2:]]
 _INCDIR = ['gravitas', np.get_include()]
 # _LIB_DIR
 setup(
@@ -15,6 +15,9 @@ setup(
     author="Liam Robinson",
     author_email="robin502@purdue.edu",
     install_requires=['numpy'],
+    data_files=[
+        ('gravitas', ['libgrav.h'])
+                ],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
