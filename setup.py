@@ -1,9 +1,19 @@
 from setuptools import setup, find_packages, Extension
+from setuptools.command.build_ext import build_ext
+
 import os
 import numpy as np
 
 _SOURCES = [os.path.join('gravitas', x) for x in os.listdir('gravitas') if '.c' == x[-2:]]
 _INCDIR = ['gravitas', np.get_include()]
+
+class CustomBuildExt(build_ext):
+    def build_extensions(self):
+        for ext in self.extensions:
+            if self.compiler.compiler_type == 'msvc':
+                ext.extra_compile_args.append('/std:c99')
+        super().build_extensions()
+
 # _LIB_DIR
 setup(
     name='gravitas',
@@ -33,5 +43,8 @@ setup(
             include_dirs=_INCDIR
         ),
     ],
+    cmdclass={
+        'build_ext': CustomBuildExt,
+    },
     zip_safe=False,  # Allow the package to be unzipped without modification
 )
