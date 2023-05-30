@@ -31,6 +31,9 @@ test-skip = "*_universal2:arm64"
 # MACOS linker doesn't support stripping symbols
 environment = {RUNNER_OS="macOS"}
 
+[tool.cibuildwheel.windows]
+environment = {CFLAGS="", LDFLAGS=""}
+
 [build-system]
 requires = ["setuptools>=42", "wheel", "numpy"]
 build-backend = "setuptools.build_meta"
