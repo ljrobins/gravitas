@@ -39,7 +39,8 @@ double numpy_arr_el(PyArrayObject *a, int row, int col) {
 }
 
 void numpy_nx3_to_xyz(PyArrayObject *a, double x[], double y[], double z[]) {
-    for(int i = 0; i < PyArray_DIM(a, 0); i++) {
+    int i;
+    for(i = 0; i < PyArray_DIM(a, 0); i++) {
             x[i] = numpy_arr_el(a, i, 0);
             y[i] = numpy_arr_el(a, i, 1);
             z[i] = numpy_arr_el(a, i, 2);
@@ -146,7 +147,8 @@ void read_cnm_snm(int nmax, int model_index, double cnm[], double snm[]) {
         // Coefficients from: https://pds-geosciences.wustl.edu/mro/mro-m-rss-5-sdp-v1/mrors_1xxx/data/shadr/jgmro_120f_sha.tab
     }
     
-    for(int i = 0; i < num; i++) {
+    int i;
+    for(i = 0; i < num; i++) {
         int ind = nm2i(*(n+i), *(m+i));
         cnm[ind] = *(c+i);
         snm[ind] = *(s+i);
@@ -174,8 +176,9 @@ Vector3 pinesnorm(Vector3 rf, double cnm[],
     double *anm = malloc(anm_sz * sizeof(double)); //ansi-c
     // double anm[anm_sz];
     anm[0] = sqrt(2.0);
-     
-    for(int m = 0; m <= nmax+2; m++) {
+
+    int m;
+    for(m = 0; m <= nmax+2; m++) {
         if(m != 0) { // DIAGONAL RECURSION
             anm[nm2i(m,m)] = sqrt(1.0+1.0/(2.0*m))*anm[nm2i(m-1,m-1)];
         }
@@ -183,7 +186,8 @@ Vector3 pinesnorm(Vector3 rf, double cnm[],
             anm[nm2i(m+1,m)] = sqrt(2*m+3)*stu.z*anm[nm2i(m,m)];
         }
         if(m < nmax+1) {
-            for(int n = m+2; n <= nmax+2; n++) {
+            int n;
+            for(n = m+2; n <= nmax+2; n++) {
                 double alpha_num = (2*n+1)*(2*n-1);
                 double alpha_den = (n-m)*(n+m);
                 double alpha = sqrt(alpha_num/alpha_den);
@@ -194,17 +198,16 @@ Vector3 pinesnorm(Vector3 rf, double cnm[],
             }
         }
     }
-    for(int n = 0; n <= nmax+2; n++) {
+    int n;
+    for(n = 0; n <= nmax+2; n++) {
         anm[nm2i(n,0)] *= sqrt(0.50);
     }
      
     double* rm = (double*) malloc((nmax+2) * sizeof(double)); //ansi-c
     double* im = (double*) malloc((nmax+2) * sizeof(double)); //ansi-c
-    // double rm[nmax+2];
-    // double im[nmax+2];
     rm[0] = 0.00; rm[1] = 1.00; 
     im[0] = 0.00; im[1] = 0.00; 
-    for(int m = 2; m < nmax+2; m++) {
+    for(m = 2; m < nmax+2; m++) {
         rm[m] = stu.x*rm[m-1] - stu.y*im[m-1]; 
         im[m] = stu.x*im[m-1] + stu.y*rm[m-1];
     }
@@ -214,7 +217,8 @@ Vector3 pinesnorm(Vector3 rf, double cnm[],
     for (int n = 0; n <= nmax; n++) {
         double g1t = 0.0; double g2t = 0.0; double g3t = 0.0; double g4t = 0.0;
         double sm = 0.5;
-        for(int m = 0; m <= n; m++) {
+        int m;
+        for(m = 0; m <= n; m++) {
             double anmp1;
             if(n == m) {
                 anmp1 = 0.0;
@@ -256,19 +260,18 @@ typedef struct thread_args{
     int start_ind;
     int end_ind;
     int nmax;
-    double (*cnm)[];
-    double (*snm)[];
+    double *cnm;
+    double *snm;
 }thread_args;
 
 void* thread_func(void* arg) {
     struct thread_args *targs = (struct thread_args *)arg;
-    for(int i = targs->start_ind; i < targs->end_ind; i++) {
-        gs[i] = pinesnorm(rfs[i], *targs->cnm, *targs->snm, targs->nmax, mu, req);
+    int i;
+    for(i = targs->start_ind; i < targs->end_ind; i++) {
+        gs[i] = pinesnorm(rfs[i], targs->cnm, targs->snm, targs->nmax, mu, req);
     }
     return NULL;
 }
-
-// double* egm96_gravity(double x[], double y[], double z[], int npts, int nmax, char* model_name) {
 
 static PyObject *egm96_gravity(PyObject *self, PyObject *args) {
     PyArrayObject *r_ecef;
@@ -289,9 +292,6 @@ static PyObject *egm96_gravity(PyObject *self, PyObject *args) {
     double* x = (double*) malloc(npts * sizeof(double)); //ansi-c
     double* y = (double*) malloc(npts * sizeof(double));
     double* z = (double*) malloc(npts * sizeof(double));
-    // double x[npts];
-    // double y[npts];
-    // double z[npts];
     PyObject* accel_vector = PyList_New(3 * npts);
     numpy_nx3_to_xyz(r_ecef, x, y, z);
 
@@ -300,11 +300,10 @@ static PyObject *egm96_gravity(PyObject *self, PyObject *args) {
     int sz = nm2i(nmax+2, nmax+2);
     double* cnm = (double*) malloc(sz * sizeof(double)); //ansi-c
     double* snm = (double*) malloc(sz * sizeof(double));
-    // double cnm[sz];
-    // double snm[sz];
     read_cnm_snm(nmax, model_index, cnm, snm);
 
-    for(int i = 0; i < npts; i++) {
+    int i;
+    for(i = 0; i < npts; i++) {
         rfs[i] = (Vector3){x[i], y[i], z[i]};
     }
 
@@ -337,7 +336,7 @@ static PyObject *egm96_gravity(PyObject *self, PyObject *args) {
     thread_func(&(thread_args) {0, npts, nmax, cnm, snm});
     
     double* res = (double*) malloc(3 * npts * sizeof(double));
-    for(int i = 0; i < npts; i++) {
+    for(i = 0; i < npts; i++) {
         res[3*i + 0] = gs[i].x;
         res[3*i + 1] = gs[i].y;
         res[3*i + 2] = gs[i].z;
