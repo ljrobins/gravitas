@@ -214,7 +214,7 @@ Vector3 pinesnorm(Vector3 rf, double cnm[],
     double rho  = mu/(req*rmag);
     double rhop = req/rmag;
     double g1 = 0.00; double g2 = 0.00; double g3 = 0.00; double g4 = 0.00;
-    for (int n = 0; n <= nmax; n++) {
+    for(n = 0; n <= nmax; n++) {
         double g1t = 0.0; double g2t = 0.0; double g3t = 0.0; double g4t = 0.0;
         double sm = 0.5;
         int m;
