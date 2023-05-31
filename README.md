@@ -15,6 +15,7 @@ The `gravitas` package has one primary goal: to provide lighting fast accelerati
 # Example Usage
 
 ```python
+import gravitas
 import numpy as np
 
 r_ecef = np.array([[7000.0, 0.0, 0.0], [0.0, 7000.0, 0.0]]) 
