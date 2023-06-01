@@ -18,7 +18,7 @@ jobs:
           - [macos-12, macosx_x86_64]
           - [windows-2019, win_amd64]
           - [windows-2019, win32]
-        python: ["cp311"]
+        python: ["cp311, cp37"]
 
     steps:
       - uses: actions/checkout@v3

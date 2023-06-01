@@ -9,15 +9,12 @@ _INCDIR = ['gravitas', np.get_include()]
 
 class CustomBuildExt(build_ext):
     def build_extensions(self):
-        # for ext in self.extensions:
-        #     if self.compiler.compiler_type == 'msvc':
-        #         ext.extra_compile_args.append('/std:c90')
         super().build_extensions()
 
 # _LIB_DIR
 setup(
     name='gravitas',
-    version='0.1.6',
+    version='0.1.7',
     packages=find_packages(),
     license='GPL-2',
     long_description="""High-fidelity gravity fields for satellite propagation""",
