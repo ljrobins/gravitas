@@ -116,6 +116,7 @@ int nm2i(int n, int m) {
 }
 
 void read_cnm_snm(int nmax, int model_index, double cnm[], double snm[]) {
+    printf("Starting coefficients read!\n");
     int num = ncoef_EGM96;
     const int* n = (int*) malloc(ncoef_EGM96 * sizeof(int));
     const int* m = (int*) malloc(ncoef_EGM96 * sizeof(int));
@@ -152,7 +153,7 @@ void read_cnm_snm(int nmax, int model_index, double cnm[], double snm[]) {
         int ind = nm2i(*(n+i), *(m+i));
         cnm[ind] = *(c+i);
         snm[ind] = *(s+i);
-        // printf("n=%d, m=%d, c=%.2e, s=%.2e, cnm=%.2e, snm=%.2e\n", *(n+i), *(m+i), *(c+i), *(s+i), cnm[ind], snm[ind]);
+        printf("n=%d, m=%d, c=%.2e, s=%.2e, cnm=%.2e, snm=%.2e\n", *(n+i), *(m+i), *(c+i), *(s+i), cnm[ind], snm[ind]);
         if(*(m+i) == nmax) {
             break;
         }
@@ -160,21 +161,18 @@ void read_cnm_snm(int nmax, int model_index, double cnm[], double snm[]) {
 
     snm[0] = 0.0;
     cnm[0] = 1.0;
-    // free((void*) n); //ansi-c but also not working
-    // free((void*) m);
-    // free((void*) c);
-    // free((void*) s);
+    printf("Finished coefficients read!\n");
     return;
 }
 
 Vector3 pinesnorm(Vector3 rf, double cnm[],
                double snm[], int nmax, double mu, double req) {
+    printf("Starting pinesnorm!\n");   
     // Based on pinesnorm() from: https://core.ac.uk/download/pdf/76424485.pdf
     double rmag = Vector3Norm(rf);
     Vector3 stu = Vector3Hat(rf);
     int anm_sz = nm2i(nmax+3, nmax+3);
     double *anm = malloc(anm_sz * sizeof(double)); //ansi-c
-    // double anm[anm_sz];
     anm[0] = sqrt(2.0);
 
     int m;
@@ -235,10 +233,10 @@ Vector3 pinesnorm(Vector3 rf, double cnm[],
             g2t += anm[nm2i(n,m)]*m*fnm;
             g3t += alpha*anmp1*dnm;
             g4t += ((n+m+1)*anm[nm2i(n,m)]+alpha*stu.z*anmp1)*dnm;
-            // printf("ANM: %d %d %.2e %.2e\n", n, m, anm[nm2i(n,m)], anmp1);
-            // printf("DEF: %d %d %.2e %.2e %.2e\n", n, m, dnm, enm, fnm);
-            // printf("G1-4t: %d %d %.2e %.2e %.2e %.2e\n", n, m, g1t, g2t, g3t, g4t);
-            // printf("CS: %d %d %.2e %.2e\n", n, m, cnm[nm2i(n,m)], snm[nm2i(n,m)]);
+            printf("ANM: %d %d %.2e %.2e\n", n, m, anm[nm2i(n,m)], anmp1);
+            printf("DEF: %d %d %.2e %.2e %.2e\n", n, m, dnm, enm, fnm);
+            printf("G1-4t: %d %d %.2e %.2e %.2e %.2e\n", n, m, g1t, g2t, g3t, g4t);
+            printf("CS: %d %d %.2e %.2e\n", n, m, cnm[nm2i(n,m)], snm[nm2i(n,m)]);
             if(m == 0) sm = 1.0;
         }
         rho *= rhop;

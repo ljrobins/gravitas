@@ -14,7 +14,7 @@ class CustomBuildExt(build_ext):
 # _LIB_DIR
 setup(
     name='gravitas',
-    version='0.1.8',
+    version='0.1.9',
     packages=find_packages(),
     license='GPL-2',
     long_description="""High-fidelity gravity fields for satellite propagation""",
