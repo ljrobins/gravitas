@@ -8,9 +8,6 @@
 #define PY_SSIZE_T_CLEAN
 #include "Python.h"
 
-#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-#include <numpy/arrayobject.h>
-
 
 #define NUM_THREADS 1
 #define MAX_RF 100000
@@ -32,21 +29,6 @@ void * success(PyObject *var){
     Py_INCREF(var);
     return var;
 }
-
-double numpy_arr_el(PyArrayObject *a, int row, int col) {
-    double *el_ptr = PyArray_GETPTR2(a, row, col);
-    return *el_ptr;
-}
-
-void numpy_nx3_to_xyz(PyArrayObject *a, double x[], double y[], double z[]) {
-    int i;
-    for(i = 0; i < PyArray_DIM(a, 0); i++) {
-            x[i] = numpy_arr_el(a, i, 0);
-            y[i] = numpy_arr_el(a, i, 1);
-            z[i] = numpy_arr_el(a, i, 2);
-    }
-}
-
 
 double req;
 double mu;
@@ -117,7 +99,7 @@ int nm2i(int n, int m) {
 
 void read_cnm_snm(int nmax, int model_index, double cnm[], double snm[]) {
     printf("Starting coefficients read!\n");
-    int num = ncoef_EGM96;
+    int num = ncoef_EGM96 + 100;
     const int* n = (int*) malloc(ncoef_EGM96 * sizeof(int));
     const int* m = (int*) malloc(ncoef_EGM96 * sizeof(int));
     const double* c = (double*) malloc(ncoef_EGM96 * sizeof(double));
@@ -153,7 +135,7 @@ void read_cnm_snm(int nmax, int model_index, double cnm[], double snm[]) {
         int ind = nm2i(*(n+i), *(m+i));
         cnm[ind] = *(c+i);
         snm[ind] = *(s+i);
-        printf("n=%d, m=%d, c=%.2e, s=%.2e, cnm=%.2e, snm=%.2e\n", *(n+i), *(m+i), *(c+i), *(s+i), cnm[ind], snm[ind]);
+        // printf("n=%d, m=%d, c=%.2e, s=%.2e, cnm=%.2e, snm=%.2e\n", *(n+i), *(m+i), *(c+i), *(s+i), cnm[ind], snm[ind]);
         if(*(m+i) == nmax) {
             break;
         }
@@ -233,10 +215,10 @@ Vector3 pinesnorm(Vector3 rf, double cnm[],
             g2t += anm[nm2i(n,m)]*m*fnm;
             g3t += alpha*anmp1*dnm;
             g4t += ((n+m+1)*anm[nm2i(n,m)]+alpha*stu.z*anmp1)*dnm;
-            printf("ANM: %d %d %.2e %.2e\n", n, m, anm[nm2i(n,m)], anmp1);
-            printf("DEF: %d %d %.2e %.2e %.2e\n", n, m, dnm, enm, fnm);
-            printf("G1-4t: %d %d %.2e %.2e %.2e %.2e\n", n, m, g1t, g2t, g3t, g4t);
-            printf("CS: %d %d %.2e %.2e\n", n, m, cnm[nm2i(n,m)], snm[nm2i(n,m)]);
+            // printf("ANM: %d %d %.2e %.2e\n", n, m, anm[nm2i(n,m)], anmp1);
+            // printf("DEF: %d %d %.2e %.2e %.2e\n", n, m, dnm, enm, fnm);
+            // printf("G1-4t: %d %d %.2e %.2e %.2e %.2e\n", n, m, g1t, g2t, g3t, g4t);
+            // printf("CS: %d %d %.2e %.2e\n", n, m, cnm[nm2i(n,m)], snm[nm2i(n,m)]);
             if(m == 0) sm = 1.0;
         }
         rho *= rhop;
@@ -272,26 +254,26 @@ void* thread_func(void* arg) {
 }
 
 static PyObject *egm96_gravity(PyObject *self, PyObject *args) {
-    PyArrayObject *r_ecef;
+    PyObject *r_ecef;
     int nmax;
     char* model_name = NULL;
-    if (!PyArg_ParseTuple(args, "O!is", 
-                            &PyArray_Type, &r_ecef, 
+    if (!PyArg_ParseTuple(args, "Ois", 
+                            &r_ecef, 
                             &nmax,
                             &model_name))
         return failure(PyExc_RuntimeError, "Failed to parse parameters.");
     
-    if (PyArray_DESCR(r_ecef)->type_num != NPY_DOUBLE)
-        return failure(PyExc_TypeError, "Type np.float64 expected for input ECEF position array.");
-    if (PyArray_NDIM(r_ecef) != 2)
-        return failure(PyExc_TypeError, "ECEF position must be [n x 3].");
-
-    int npts = PyArray_DIM(r_ecef, 0);
+    int npts = PyObject_Length(r_ecef) / 3;
     double* x = (double*) malloc(npts * sizeof(double)); //ansi-c
     double* y = (double*) malloc(npts * sizeof(double));
     double* z = (double*) malloc(npts * sizeof(double));
-    PyObject* accel_vector = PyList_New(3 * npts);
-    numpy_nx3_to_xyz(r_ecef, x, y, z);
+
+    int i;
+    for (i = 0; i < npts; i++) {
+        x[i] = PyFloat_AsDouble((PyObject*) PyList_GetItem(r_ecef, 3*i));
+        y[i] = PyFloat_AsDouble((PyObject*) PyList_GetItem(r_ecef, 3*i+1));
+        z[i] = PyFloat_AsDouble((PyObject*) PyList_GetItem(r_ecef, 3*i+2));
+    }
 
     set_indices(model_name, &model_index, &body_index);
     set_body_params(body_index, &mu, &req);
@@ -300,7 +282,6 @@ static PyObject *egm96_gravity(PyObject *self, PyObject *args) {
     double* snm = (double*) malloc(sz * sizeof(double));
     read_cnm_snm(nmax, model_index, cnm, snm);
 
-    int i;
     for(i = 0; i < npts; i++) {
         rfs[i] = (Vector3){x[i], y[i], z[i]};
     }
@@ -333,6 +314,7 @@ static PyObject *egm96_gravity(PyObject *self, PyObject *args) {
     // If we just want to run on one thread
     thread_func(&(thread_args) {0, npts, nmax, cnm, snm});
     
+    PyObject* accel_vector = PyList_New(3 * npts);
     double* res = (double*) malloc(3 * npts * sizeof(double));
     for(i = 0; i < npts; i++) {
         res[3*i + 0] = gs[i].x;
@@ -363,6 +345,5 @@ static struct PyModuleDef module = {
 };
 
 PyMODINIT_FUNC PyInit__grav(void) {
-    import_array();
     return PyModule_Create(&module);
 }

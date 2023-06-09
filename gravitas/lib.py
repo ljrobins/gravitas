@@ -12,6 +12,8 @@ def acceleration(position_ecef: np.ndarray, max_order: int, use_model: str = "EG
     if position_ecef.shape[0] > _MAX_PTS:
         raise ValueError(f"Currently, gravitas is limited to 1e5 points per acceleration() call ({position_ecef.shape[0]} provided)")
 
-    res = np.array(_grav(position_ecef, max_order, use_model)).reshape((-1,3))
+    r_ecef_list = position_ecef.flatten().tolist()
+    print(r_ecef_list)
+    res = np.array(_grav(r_ecef_list, max_order, use_model)).reshape((-1,3))
     return res
 
