@@ -9,7 +9,7 @@ import numpy as np
 r_ecef = np.tile(np.array([[7000, 0, 0.0]], dtype=np.float64), (1,1))
 
 ps.tic()
-g = gravitas.acceleration(r_ecef, 16, "EGM96")
+g = gravitas.acceleration(r_ecef, 360, "EGM96")
 ps.toc()
 
 print(g)

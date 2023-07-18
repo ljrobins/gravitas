@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "pthread.h": "c",
-        "arrayobject.h": "c"
+        "arrayobject.h": "c",
+        "__locale": "c"
     }
 }

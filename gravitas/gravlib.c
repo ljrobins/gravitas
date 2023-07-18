@@ -100,10 +100,10 @@ int nm2i(int n, int m) {
 void read_cnm_snm(int nmax, int model_index, double cnm[], double snm[]) {
     // printf("Starting coefficients read!\n");
     int num = ncoef_EGM96 + 100;
-    const int* n = (int*) malloc(ncoef_EGM96 * sizeof(int));
-    const int* m = (int*) malloc(ncoef_EGM96 * sizeof(int));
-    const double* c = (double*) malloc(ncoef_EGM96 * sizeof(double));
-    const double* s = (double*) malloc(ncoef_EGM96 * sizeof(double));
+    int* n;
+    int* m;
+    double* c;
+    double* s;
 
     if(model_index == EGM96) {
         // Coefficients from: https://raw.githubusercontent.com/lukasbystricky/SpaceSimulator/master/Environment/Geopoential/coefficients/egm96_to360.ascii
@@ -231,6 +231,8 @@ Vector3 pinesnorm(Vector3 rf, double cnm[],
     }
     Vector3 rv = (Vector3) {g1-g4*stu.x, g2-g4*stu.y, g3-g4*stu.z};
 
+    free(rm);
+    free(im);
     free(anm);
 
     return rv;
@@ -315,16 +317,17 @@ static PyObject *egm96_gravity(PyObject *self, PyObject *args) {
     thread_func(&(thread_args) {0, npts, nmax, cnm, snm});
     
     PyObject* accel_vector = PyList_New(3 * npts);
-    double* res = (double*) malloc(3 * npts * sizeof(double));
     for(i = 0; i < npts; i++) {
-        res[3*i + 0] = gs[i].x;
-        res[3*i + 1] = gs[i].y;
-        res[3*i + 2] = gs[i].z;
         
         PyList_SetItem(accel_vector, 3*i+0, PyFloat_FromDouble(gs[i].x));
         PyList_SetItem(accel_vector, 3*i+1, PyFloat_FromDouble(gs[i].y));
         PyList_SetItem(accel_vector, 3*i+2, PyFloat_FromDouble(gs[i].z));
     }
+    free(x);
+    free(y);
+    free(z);
+    free(cnm);
+    free(snm);
     return accel_vector;
 }
 
