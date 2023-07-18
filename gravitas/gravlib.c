@@ -99,7 +99,7 @@ int nm2i(int n, int m) {
 
 void read_cnm_snm(int nmax, int model_index, double cnm[], double snm[]) {
     // printf("Starting coefficients read!\n");
-    int num = ncoef_EGM96 + 100;
+    int num;
     int* n;
     int* m;
     double* c;
@@ -318,7 +318,6 @@ static PyObject *egm96_gravity(PyObject *self, PyObject *args) {
     
     PyObject* accel_vector = PyList_New(3 * npts);
     for(i = 0; i < npts; i++) {
-        
         PyList_SetItem(accel_vector, 3*i+0, PyFloat_FromDouble(gs[i].x));
         PyList_SetItem(accel_vector, 3*i+1, PyFloat_FromDouble(gs[i].y));
         PyList_SetItem(accel_vector, 3*i+2, PyFloat_FromDouble(gs[i].z));

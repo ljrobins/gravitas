@@ -4,7 +4,7 @@ from setuptools.command.build_ext import build_ext
 import os
 import numpy as np
 
-_SOURCES = [os.path.join('gravitas', x) for x in os.listdir('gravitas') if '.c' == x[-2:]]
+_SOURCES = [os.path.join('gravitas', x) for x in os.listdir('gravitas') if x.endswith('.c')]
 _INCDIR = ['gravitas', np.get_include()]
 
 class CustomBuildExt(build_ext):

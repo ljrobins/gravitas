@@ -6,7 +6,7 @@ _MAX_PTS = int(1e5)
 
 def acceleration(position_ecef: np.ndarray, max_order: int, use_model: str = "EGM96") -> np.ndarray:
     if use_model not in _SUPPORTED_MODELS:
-        raise NotImplementedError(f"Model {use_model} is not supported, it must be in: {', '._SUPPORTED_MODELS.keys()}")
+        raise NotImplementedError(f"Model {use_model} is not supported, it must be in: {', '.join(_SUPPORTED_MODELS.keys())}")
     if _SUPPORTED_MODELS[use_model] < max_order:
         raise ValueError(f"The {use_model} model has coefficients to a maximum order of {_SUPPORTED_MODELS[use_model]}, {max_order} input")
     if position_ecef.shape[0] > _MAX_PTS:
