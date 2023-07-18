@@ -98,7 +98,7 @@ int nm2i(int n, int m) {
 }
 
 void read_cnm_snm(int nmax, int model_index, double cnm[], double snm[]) {
-    printf("Starting coefficients read!\n");
+    // printf("Starting coefficients read!\n");
     int num = ncoef_EGM96 + 100;
     const int* n = (int*) malloc(ncoef_EGM96 * sizeof(int));
     const int* m = (int*) malloc(ncoef_EGM96 * sizeof(int));
@@ -143,13 +143,13 @@ void read_cnm_snm(int nmax, int model_index, double cnm[], double snm[]) {
 
     snm[0] = 0.0;
     cnm[0] = 1.0;
-    printf("Finished coefficients read!\n");
+    // printf("Finished coefficients read!\n");
     return;
 }
 
 Vector3 pinesnorm(Vector3 rf, double cnm[],
                double snm[], int nmax, double mu, double req) {
-    printf("Starting pinesnorm!\n");   
+    // printf("Starting pinesnorm!\n");   
     // Based on pinesnorm() from: https://core.ac.uk/download/pdf/76424485.pdf
     double rmag = Vector3Norm(rf);
     Vector3 stu = Vector3Hat(rf);

@@ -17,7 +17,6 @@ environment = {RUNNER_OS="macOS"}
 [tool.cibuildwheel.windows]
 environment = { CFLAGS="Wall", LDFLAGS="" }
 
-
 [build-system]
 requires = ["setuptools>=42", "wheel", "numpy"]
 build-backend = "setuptools.build_meta"
