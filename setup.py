@@ -1,50 +1,23 @@
-from setuptools import setup, find_packages, Extension
-from setuptools.command.build_ext import build_ext
-
+from distutils.core import setup
+from pybind11.setup_helpers import Pybind11Extension
+import eigency
+import platform
 import os
-import numpy as np
 
-_SOURCES = [os.path.join('gravitas', x) for x in os.listdir('gravitas') if x.endswith('.c')]
-_INCDIR = ['gravitas', np.get_include()]
+std_arg = '-std=c++17'
+opt_arg = '-O3'
+if platform.system() == 'Windows':
+    std_arg = '/std:c++17'
+    opt_arg = '/O2'
 
-class CustomBuildExt(build_ext):
-    def build_extensions(self):
-        super().build_extensions()
+ext_modules = [
+    Pybind11Extension(
+        name="gravitas",
+        sources=[os.path.join("src", "python_bindings.cpp")],
+        include_dirs=['src', *tuple(eigency.get_includes())],
+        extra_compile_args=[std_arg, opt_arg],
+    ),
+]
 
-# _LIB_DIR
-setup(
-    name='gravitas',
-    version='0.1.25',
-    packages=find_packages(),
-    license='GPL-2',
-    long_description="""High-fidelity gravity fields for satellite propagation""",
-    long_description_content_type='text/markdown',
-    author="Liam Robinson",
-    author_email="robin502@purdue.edu",
-    install_requires=['numpy'],
-    package_data={'gravitas': ['libgrav.h']},
-    classifiers=[
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
-        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-        "Operating System :: MacOS",
-        "Operating System :: Microsoft :: Windows",
-    ],
-    ext_modules=[
-        Extension(
-            # the qualified name of the extension module to build
-            'gravitas._grav',
-            # the files to compile into our module relative to ``setup.py``
-            sources=_SOURCES,
-            include_dirs=_INCDIR,
-            extra_compile_args=['-O3', '-march=native', '-ffast-math', '-fopenmp'],
-        ),
-    ],
-    cmdclass={
-        'build_ext': CustomBuildExt,
-    },
-    zip_safe=False,  # Allow the package to be unzipped without modification
-)
+setup(name = 'gravitas',
+    ext_modules=ext_modules)

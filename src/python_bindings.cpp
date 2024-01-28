@@ -10,7 +10,18 @@ using namespace std;
 #include "libgrav.hpp"
 
 PYBIND11_MODULE(gravitas, m) {
-    m.doc() = "gravitas module";  // Optional module docstring
+    m.doc() = R"pbdoc(
+        Pybind11 example plugin
+        -----------------------
+
+        .. currentmodule:: gravitas
+
+        .. autosummary::
+           :toctree: _generate
+
+           add
+           subtract
+    )pbdoc";
     m.def("earth_acceleration", &earth_acceleration, "A function that returns the acceleration of a body due to a gravity model");
     m.def("moon_acceleration", &moon_acceleration, "A function that returns the acceleration of a body due to a gravity model");
 }

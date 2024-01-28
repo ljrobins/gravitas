@@ -1,11 +1,19 @@
-.PHONY: build
+.PHONY: clean test all install docs 
 
-build:
+install:
+	source bin/activate && pip install -e .
+
+clean:
 	rm -rf build
-	rm -rf setup.py
-	poetry version patch
-	poetry build
+	rm -rf *.so
 
+test:
+	pytest tests/*.py
 
-publish:
-	poetry publish
+sphinx:
+	cd docs && make html
+
+start-runner:
+	actions-runner/run.sh
+
+all: clean install test

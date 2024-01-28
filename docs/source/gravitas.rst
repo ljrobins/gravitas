@@ -1,0 +1,4 @@
+gravitas
+========
+
+.. automodule:: gravitas

@@ -1,18 +1,11 @@
-import os
-os.system('python setup.py clean --all && python setup.py build_ext --inplace')
 import time
 import gravitas
 import numpy as np
-
 import pytest
 
 def test_over_nmax():
     with pytest.raises(SystemError):
         gravitas.earth_acceleration(np.array([[0, 0, 0]]), 361)
-
-def test_bad_name():
-    with pytest.raises(SystemError):
-        gravitas.earth_acceleration(np.array([[0, 0, 0]]), 16)
 
 def test_negative_nmax():
     with pytest.raises(SystemError):

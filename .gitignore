@@ -12,3 +12,4 @@ script
 build
 *.cfg
 *.pytest*
+.vscode

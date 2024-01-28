@@ -1,7 +1,3 @@
 {
-    "files.associations": {
-        "pthread.h": "c",
-        "arrayobject.h": "c",
-        "__locale": "c"
-    }
+    "liveServer.settings.port": 5501
 }
