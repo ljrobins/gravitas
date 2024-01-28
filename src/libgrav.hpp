@@ -216,6 +216,7 @@ Eigen::MatrixXd acceleration(Eigen::MatrixXd r_ecef, char* model_name, int nmax)
 }
 
 Eigen::MatrixXd earth_acceleration(Eigen::MatrixXd r_ecef, int nmax) {
+    
     char model_name[] = "EGM96";
     return acceleration(r_ecef, model_name, nmax);
 }

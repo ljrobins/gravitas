@@ -1,4 +1,4 @@
-.PHONY: clean test all install docs 
+.PHONY: clean test all install docs stubs
 
 install:
 	source bin/activate && pip install -e .
@@ -11,9 +11,12 @@ test:
 	pytest tests/*.py
 
 sphinx:
-	cd docs && make html
+	cd docs && sphinx-apidoc -o ./source ../src -f && make html
 
 start-runner:
 	actions-runner/run.sh
 
-all: clean install test
+stubs:
+	pybind11-stubgen gravitas --numpy-array-remove-parameters --ignore-all-errors --output-dir src
+
+all: clean install sphinx
