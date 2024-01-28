@@ -288,31 +288,6 @@ static PyObject *egm96_gravity(PyObject *self, PyObject *args) {
         rfs[i] = (Vector3){x[i], y[i], z[i]};
     }
 
-    // pthread_t thread[NUM_THREADS];
-    // pthread_attr_t attr;
-    // pthread_attr_init(&attr);
-    // size_t stacksize;
-    // pthread_attr_getstacksize(&attr, &stacksize);
-    // pthread_attr_setstacksize(&attr, 2*stacksize);
-
-    // thread_args targs[NUM_THREADS];
-
-    // for(int i = 0; i < NUM_THREADS; i++) {
-    //     int start_ind = i * npts / NUM_THREADS;
-    //     int end_ind = (i+1) * npts / NUM_THREADS;
-    //     targs[i] = (thread_args) {start_ind, end_ind, nmax, &cnm, &snm};
-    // }
-
-    // for(int i = 0; i < NUM_THREADS; i++) {
-    //     pthread_create(&thread[i], &attr, &thread_func, &targs[i]);
-    // }
-    // for(int i = 0; i < NUM_THREADS; i++) {
-    //     if (pthread_join(thread[i], NULL) != 0) {
-    //         printf("ERROR : pthread join failed.\n");
-    //         return (0);
-    //     }
-    // }
-
     // If we just want to run on one thread
     thread_func(&(thread_args) {0, npts, nmax, cnm, snm});
     

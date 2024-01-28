@@ -39,7 +39,8 @@ setup(
             'gravitas._grav',
             # the files to compile into our module relative to ``setup.py``
             sources=_SOURCES,
-            include_dirs=_INCDIR
+            include_dirs=_INCDIR,
+            extra_compile_args=['-O3', '-march=native', '-ffast-math', '-fopenmp'],
         ),
     ],
     cmdclass={
