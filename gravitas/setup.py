@@ -11,12 +11,12 @@ if platform.system() == 'Windows':
 
 ext_modules = [
     Pybind11Extension(
-        name="gravitas_cpp",
+        name="gravitas",
         sources=["python_bindings.cpp"],
         include_dirs=['.', *tuple(eigency.get_includes())],
-        extra_compile_args=[std_arg, opt_arg, '-march=native', '-fopenmp', '-fPIC', '-ffast-math'],
+        extra_compile_args=[std_arg, opt_arg],
     ),
 ]
 
-setup(name = 'gravitas_cpp',
+setup(name = 'gravitas',
     ext_modules=ext_modules)

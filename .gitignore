@@ -11,3 +11,4 @@ script
 *.egg-info
 build
 *.cfg
+*.pytest*

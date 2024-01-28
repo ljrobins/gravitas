@@ -9,8 +9,8 @@ using namespace std;
 
 #include "libgrav.hpp"
 
-PYBIND11_MODULE(gravitas_cpp, m) {
+PYBIND11_MODULE(gravitas, m) {
     m.doc() = "gravitas module";  // Optional module docstring
-    m.def("print_test", &print_test, "A function that prints the first value of n_coef_EGM96");
-    m.def("acceleration", &acceleration, "A function that returns the acceleration of a body due to a gravity model");
+    m.def("earth_acceleration", &earth_acceleration, "A function that returns the acceleration of a body due to a gravity model");
+    m.def("moon_acceleration", &moon_acceleration, "A function that returns the acceleration of a body due to a gravity model");
 }

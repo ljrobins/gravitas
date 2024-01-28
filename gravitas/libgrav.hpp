@@ -1,6 +1,5 @@
 #include <GRGM360.hpp>
 #include <EGM96.hpp>
-#include <MRO120F.hpp>
 
 #include <iostream>
 #include <stdio.h>
@@ -13,12 +12,6 @@
 
 using namespace std;
 
-void print_test()
-{
-    cout << "20" << endl;
-}
-
-
 double req;
 double mu;
 int model_index;
@@ -27,13 +20,11 @@ int body_index;
 enum BODY {
     EARTH,
     MOON,
-    MARS,
 };
 
 enum MODEL {
     EGM96,
     GRGM360, // https://pds-geosciences.wustl.edu/grail/grail-l-lgrs-5-rdr-v1/grail_1001/shbdr/gggrx_1200a_shb_l180.lbl
-    MRO120F, // https://pds-geosciences.wustl.edu/mro/mro-m-rss-5-sdp-v1/mrors_1xxx/data/shadr/jgmro_120f_sha.lbl
 };
 
 void set_indices(char* model_name, int *model_index, int *body_index) {
@@ -46,11 +37,6 @@ void set_indices(char* model_name, int *model_index, int *body_index) {
     if (strcmp(model_name, "GRGM360") == 0) {
         *model_index = GRGM360;
         *body_index = MOON;
-        return;
-    }
-    if (strcmp(model_name, "MRO120F") == 0) {
-        *model_index = MRO120F;
-        *body_index = MARS;
         return;
     }
     // raise a python error
@@ -68,10 +54,6 @@ void set_body_params(int body_index, double *mu, double *req) {
         *mu = 4902.8001224453001;
         *req = 1738.0;
     }
-    if(body_index == MARS) {
-        *mu = 42828.3748574;
-        *req = 3396.0;
-    }
 }
 
 int nm2i(int n, int m) {
@@ -79,9 +61,6 @@ int nm2i(int n, int m) {
 }
 
 void read_cnm_snm(int nmax, int model_index, Eigen::VectorXd &cnm, Eigen::VectorXd &snm) {
-    // printf("Starting coefficients read!\n");
-
-    // set pointers
     const Eigen::Map<const Eigen::VectorXi> *n = nullptr;
     const Eigen::Map<const Eigen::VectorXi> *m = nullptr;
     const Eigen::Map<const Eigen::VectorXd> *c = nullptr;
@@ -94,6 +73,8 @@ void read_cnm_snm(int nmax, int model_index, Eigen::VectorXd &cnm, Eigen::Vector
             num = n_EGM96_eigen.size();
             break;
         case GRGM360:
+            n = &n_GRGM360_eigen; m = &m_GRGM360_eigen; c = &c_GRGM360_eigen; s = &s_GRGM360_eigen;
+            num = n_GRGM360_eigen.size();
             break;
     }
 
@@ -207,7 +188,7 @@ Eigen::VectorXd pinesnorm(Eigen::VectorXd rf, Eigen::VectorXd cnm, Eigen::Vector
     return result;
 }
 
-Eigen::MatrixXd acceleration(Eigen::MatrixXd r_ecef, int nmax, char* model_name) {
+Eigen::MatrixXd acceleration(Eigen::MatrixXd r_ecef, char* model_name, int nmax) {
 
     // if nmax < 0, raise an error
     if(nmax < 0) {
@@ -232,4 +213,14 @@ Eigen::MatrixXd acceleration(Eigen::MatrixXd r_ecef, int nmax, char* model_name)
     }
 
     return accel_vector;
+}
+
+Eigen::MatrixXd earth_acceleration(Eigen::MatrixXd r_ecef, int nmax) {
+    char model_name[] = "EGM96";
+    return acceleration(r_ecef, model_name, nmax);
+}
+
+Eigen::MatrixXd moon_acceleration(Eigen::MatrixXd r_mcmf, int nmax) {
+    char model_name[] = "GRGM360";
+    return acceleration(r_mcmf, model_name, nmax);
 }
