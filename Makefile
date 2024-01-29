@@ -1,4 +1,4 @@
-.PHONY: clean test all install docs stubs
+.PHONY: clean test all install docs stubs bump
 
 install:
 	source bin/activate && pip install -e .
@@ -15,6 +15,9 @@ sphinx:
 
 start-runner:
 	actions-runner/run.sh
+
+bump:
+	bump2version patch 
 
 stubs:
 	pybind11-stubgen gravitas --numpy-array-remove-parameters --ignore-all-errors --output-dir src

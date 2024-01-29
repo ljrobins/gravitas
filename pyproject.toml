@@ -1,20 +1,21 @@
-
 [project]
 name = "gravitas"
-version = "0.0.2"
-authors = [{name = "Liam Robinson", email = "liamers127@gmail.com"}]
+version = "0.0.3"
 description = "Gravity field modeling for astrodynamics"
 requires-python = ">=3.9"
+[[project.authors]]
+name = "Liam Robinson"
+email = "liamers127@gmail.com"
+
+[build-system]
+requires = [ "setuptools>=42", "wheel", "numpy>=1.19.2", "pybind11>=2.11.0", "eigency>=1.6.0", "setuptools-scm>=8.0",]
+build-backend = "setuptools.build_meta"
 
 [project.urls]
 Homepage = "https://example.com"
 Repository = "https://github.com/liamrobinson1/gravitas"
 Documentation = "https://yourprojectdocs.com"
 
-[build-system]
-requires = ["setuptools>=42", "wheel", "numpy>=1.19.2", "pybind11>=2.11.0", "eigency>=1.6.0", "setuptools-scm>=8.0"]
-build-backend = "setuptools.build_meta"
-
 [tool.cibuildwheel]
-build = ["cp312-*", "cp311-*"]
-skip = ["*win32*"]
+build = [ "cp312-*", "cp311-*",]
+skip = [ "*win32*",]
