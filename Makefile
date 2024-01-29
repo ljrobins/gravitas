@@ -17,9 +17,9 @@ start-runner:
 	actions-runner/run.sh
 
 bump:
-	bump2version patch 
+	bump2version patch --allow-dirty
 
 stubs:
 	pybind11-stubgen gravitas --numpy-array-remove-parameters --ignore-all-errors --output-dir src
 
-all: clean install test sphinx stubs
+all: clean install test sphinx stubs bump
