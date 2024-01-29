@@ -1,17 +1,3 @@
-"""
-
-        Pybind11 example plugin
-        -----------------------
-
-        .. currentmodule:: gravitas
-
-        .. autosummary::
-           :toctree: _generate
-
-           earth_acceleration
-           moon_acceleration
-    
-"""
 from __future__ import annotations
 import numpy
 __all__ = ['earth_acceleration', 'moon_acceleration']
