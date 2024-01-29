@@ -34,7 +34,9 @@ jobs:
         CIBW_ARCHS_WINDOWS: AMD64
         CIBW_ARCHS_LINUX: x86_64
         CIBW_TEST_REQUIRES: pytest numpy
-        CIBW_TEST_COMMAND: "pytest {project}/tests/*.py"
+        CIBW_TEST_COMMAND_LINUX: pytest {project}/tests/*.py
+        CIBW_TEST_COMMAND_MACOS: pytest {project}/tests/*.py
+        CIBW_TEST_COMMAND_WINDOWS: pytest {project}\tests\*.py
         CIBW_TEST_SKIP: "*-macosx_arm64 *-macosx_universal2:arm64"
 
     - name: Install Twine
@@ -44,5 +46,5 @@ jobs:
       if: github.event_name == 'push'
       env:
         TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.pypi_password }}
+        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
       run: twine upload wheelhouse/*
