@@ -19,4 +19,4 @@ start-runner:
 stubs:
 	pybind11-stubgen gravitas --numpy-array-remove-parameters --ignore-all-errors --output-dir src
 
-all: clean install sphinx
+all: clean install sphinx stubs

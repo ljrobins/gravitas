@@ -10,18 +10,6 @@ using namespace std;
 #include "libgrav.hpp"
 
 PYBIND11_MODULE(gravitas, m) {
-    m.doc() = R"pbdoc(
-        Pybind11 example plugin
-        -----------------------
-
-        .. currentmodule:: gravitas
-
-        .. autosummary::
-           :toctree: _generate
-
-           earth_acceleration
-           moon_acceleration
-    )pbdoc";
     m.def("earth_acceleration", &earth_acceleration, R"mydelimiter(
         Acceleration due to the Earth's gravity field, as defined by the EGM96 model.
 
