@@ -1,6 +1,6 @@
 [project]
 name = "gravitas"
-version = "0.2.5"
+version = "0.2.6"
 description = "Gravity field modeling for astrodynamics"
 requires-python = ">=3.9"
 [[project.authors]]
@@ -17,5 +17,5 @@ Repository = "https://github.com/liamrobinson1/gravitas"
 Documentation = "https://yourprojectdocs.com"
 
 [tool.cibuildwheel]
-build = [ "cp312-*", "cp311-*", "cp310-*", "cp39-*"]
-skip = [ "*win32*",]
+build = ["cp312-*", "cp311-*", "cp310-*", "cp39-*"]
+skip = "cp36-* cp37-* cp-38* pp* *-manylinux_i686 *_ppc64le *_s390x *win32*"
