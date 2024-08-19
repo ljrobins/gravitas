@@ -13,3 +13,5 @@ build
 *.cfg
 *.pytest*
 .vscode
+.lock
+.venv

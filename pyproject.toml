@@ -1,6 +1,6 @@
 [project]
 name = "gravitas"
-version = "0.2.6"
+version = "0.2.7"
 description = "Gravity field modeling for astrodynamics"
 requires-python = ">=3.9"
 [[project.authors]]
