@@ -1,6 +1,6 @@
 [project]
 name = "gravitas"
-version = "0.2.11"
+version = "0.2.12"
 description = "Gravity field modeling for astrodynamics"
 requires-python = ">=3.10"
 
@@ -14,4 +14,3 @@ build-backend = "setuptools.build_meta"
 
 [project.urls]
 Repository = "https://github.com/liamrobinson1/gravitas"
-Documentation = "https://yourprojectdocs.com"
