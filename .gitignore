@@ -15,3 +15,6 @@ build
 .vscode
 .lock
 .venv
+._*
+wheelhouse/
+*.whl

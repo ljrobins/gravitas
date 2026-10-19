@@ -1,15 +1,21 @@
 [project]
 name = "gravitas"
-version = "0.2.12"
+version = "0.2.13"
 description = "Gravity field modeling for astrodynamics"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
+dependencies = ["numpy>=1.26"]
 
 [[project.authors]]
 name = "Liam Robinson"
 email = "liamers127@gmail.com"
 
 [build-system]
-requires = [ "setuptools>=42", "wheel", "numpy>=1.19.2", "pybind11>=2.11.0", "eigency>=1.6.0", "setuptools-scm>=8.0",]
+requires = [
+    "setuptools>=77",
+    "numpy>=1.26",
+    "pybind11>=2.13,<4",
+    "eigency>=5,<6",
+]
 build-backend = "setuptools.build_meta"
 
 [project.urls]

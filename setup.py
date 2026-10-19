@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 from pybind11.setup_helpers import Pybind11Extension
 import eigency
 import platform
