@@ -2,6 +2,12 @@
 name = "gravitas"
 version = "0.2.13"
 edition = "2021"
+include = [
+    "src/*.rs",
+    "src/*.txt",
+    "Cargo.toml",
+    "Cargo.lock",
+]
 
 [lib]
 name = "gravitas"
