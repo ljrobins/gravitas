@@ -8,7 +8,7 @@ name = "gravitas"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = { version = "0.22", features = ["extension-module", "auto-initialize"] }
+pyo3 = { version = "0.22", features = ["extension-module"] }
 rayon = "1.10"
 numpy = "0.22"
 thread_local = "1.1"
