@@ -1,6 +1,6 @@
 [project]
 name = "gravitas"
-version = "0.2.13"
+version = "0.2.14"
 description = "Gravity field modeling for astrodynamics"
 requires-python = ">=3.12"
 dependencies = ["numpy>=1.26"]
@@ -10,13 +10,11 @@ name = "Liam Robinson"
 email = "liamers127@gmail.com"
 
 [build-system]
-requires = [
-    "setuptools>=77",
-    "numpy>=1.26",
-    "pybind11>=2.13,<4",
-    "eigency>=5,<6",
-]
-build-backend = "setuptools.build_meta"
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
 
 [project.urls]
-Repository = "https://github.com/liamrobinson1/gravitas"
+Repository = "https://github.com/ljrobins/gravitas"
+
+[tool.maturin]
+features = ["pyo3/extension-module"]
