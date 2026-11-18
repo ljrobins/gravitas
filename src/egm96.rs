@@ -27,24 +27,20 @@ impl EGM96 {
     pub fn new() -> Self {
         Self {
             n: include_str!("n_EGM96.txt")
-                .trim()
-                .split('\n')
-                .map(|line| line.parse().expect("Failed to parse n_EGM96"))
+                .lines()
+                .map(|line| line.trim().parse().expect("Failed to parse n_EGM96"))
                 .collect(),
             m: include_str!("m_EGM96.txt")
-                .trim()
-                .split('\n')
-                .map(|line| line.parse().expect("Failed to parse m_EGM96"))
+                .lines()
+                .map(|line| line.trim().parse().expect("Failed to parse m_EGM96"))
                 .collect(),
             c: include_str!("c_EGM96.txt")
-                .trim()
-                .split('\n')
-                .map(|line| line.parse().expect("Failed to parse c_EGM96"))
+                .lines()
+                .map(|line| line.trim().parse().expect("Failed to parse c_EGM96"))
                 .collect(),
             s: include_str!("s_EGM96.txt")
-                .trim()
-                .split('\n')
-                .map(|line| line.parse().expect("Failed to parse s_EGM96"))
+                .lines()
+                .map(|line| line.trim().parse().expect("Failed to parse s_EGM96"))
                 .collect(),
         }
     }
