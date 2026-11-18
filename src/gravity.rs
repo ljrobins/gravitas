@@ -156,12 +156,12 @@ pub fn compute_acceleration_single(
         im[0] = 0.0;
         im[1] = 0.0;
 
-        for m in 2..nmax + 1 {
+        for m in 2..nmax + 2 {
             rm[m] = stu[0] * rm[m - 1] - stu[1] * im[m - 1];
             im[m] = stu[0] * im[m - 1] + stu[1] * rm[m - 1];
         }
 
-        let rho = EARTH_MU / (EARTH_REQ * rmag);
+        let mut rho = EARTH_MU / (EARTH_REQ * rmag);
         let rhop = EARTH_REQ / rmag;
 
         let mut g1: f64 = 0.0;
@@ -192,11 +192,11 @@ pub fn compute_acceleration_single(
                 if m == 0 { sm = 1.0; }
             }
 
-            let rho_scaled = rho * rhop;
-            g1 += rho_scaled * g1t;
-            g2 += rho_scaled * g2t;
-            g3 += rho_scaled * g3t;
-            g4 += rho_scaled * g4t;
+            rho *= rhop;
+            g1 += rho * g1t;
+            g2 += rho * g2t;
+            g3 += rho * g3t;
+            g4 += rho * g4t;
         }
 
         [g1 - g4 * stu[0], g2 - g4 * stu[1], g3 - g4 * stu[2]]
