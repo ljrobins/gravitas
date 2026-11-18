@@ -28,6 +28,12 @@ fn earth_acceleration(
         ));
     }
 
+    if nmax > 360 {
+        return Err(pyo3::PyErr::new::<pyo3::exceptions::PyValueError, _>(
+            format!("nmax ({}) exceeds maximum degree of EGM96 (360)", nmax)
+        ));
+    }
+
     // Convert input to Rust format
     let positions: Vec<[f64; 3]> = (0..n)
         .map(|i| {
