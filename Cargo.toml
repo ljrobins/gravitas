@@ -7,6 +7,12 @@ edition = "2021"
 name = "gravitas"
 crate-type = ["cdylib"]
 
+[package.metadata.docs.rs]
+all-features = true
+
+[package.metadata.maturin]
+includes = ["src/*.txt"]
+
 [dependencies]
 pyo3 = { version = "0.22", features = ["extension-module"] }
 rayon = "1.10"

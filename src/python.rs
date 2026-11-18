@@ -47,7 +47,7 @@ fn earth_acceleration(
 
     // Convert to numpy array - create 2D array row by row
     let gil = unsafe { pyo3::Python::assume_gil_acquired() };
-    let mut output = PyArray2::<f64>::zeros_bound(gil, (n, 3), false);
+    let output = PyArray2::<f64>::zeros_bound(gil, (n, 3), false);
     for i in 0..n {
         let r = &result[i];
         unsafe {

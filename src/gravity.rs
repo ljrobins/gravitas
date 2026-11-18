@@ -14,6 +14,7 @@ const EARTH_REQ: f64 = 6378.137;   // km
 
 /// EGM96 with pre-computed coefficient cache
 struct EGM96WithCache {
+    #[allow(dead_code)]
     egm: EGM96,
     cache: Vec<(Vec<f64>, Vec<f64>)>,
 }
